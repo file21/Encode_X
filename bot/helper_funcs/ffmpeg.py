@@ -48,7 +48,7 @@ async def convert_video(video_file, output_directory, total_time, bot, message, 
     codec.append("libx264")
     resolution.append("1920x1080")
     preset.append("veryfast")
-    audio_b.append("35k")
+    audio_b.append("128k")
     file_genertor_command =  f"ffmpeg -hide_banner -loglevel quiet -progress '{progress}' -i '{video_file}' -i https://graph.org/file/b41a33cfdde9349b322b7.png -filter_complex '[0:v][1:v] overlay=W-w-1280:H-h-720 [out]' -map '[out]' -map 0:a -map 0:s -c:v {codec[0]} -crf {crf[0]} -c:s copy -pix_fmt yuv420p -s {resolution[0]} -b:v 150k -c:a libopus -b:a {audio_b[0]} -preset {preset[0]} -metadata 'title=' -metadata:s:v 'title=' -metadata:s:a 'title=' -metadata:s:s 'title=' '{out_put_file_name}' -y"
     #file_genertor_command =  f"ffmpeg -hide_banner -loglevel quiet -progress '{progress}' -i '{video_file}' -filter_complex \"[0:v]drawtext=text='ANIME CHIDORI':x=w-tw-10:y=10:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5[out]\" -map '[out]' -map 0:a -map 0:s -c:v {codec[0]} -crf {crf[0]} -c:s copy -pix_fmt yuv420p -s {resolution[0]} -b:v 150k -c:a libopus -b:a {audio_b[0]} -preset {preset[0]} -metadata 'title=' -metadata:s:v 'title=' -metadata:s:a 'title=' -metadata:s:s 'title=' '{out_put_file_name}' -y"
     #file_genertor_command =  f"ffmpeg -hide_banner -loglevel quiet -progress '{progress}' -i '{video_file}' -filter_complex \"[0:v]drawtext=text='ANIME CHIDORI':x=w-tw-10:y=10:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5[out]\" -map '[out]' -map 0:a -map 0:s -c:v {codec[0]} -crf {crf[0]} -c:s copy -pix_fmt yuv420p -s {resolution[0]} -b:v 150k -c:a libopus -b:a {audio_b[0]} -preset {preset[0]} -metadata 'title=' -metadata:s:v 'title=' -metadata:s:a 'title=' -metadata:s:s 'title=' '{out_put_file_name}' -y"
