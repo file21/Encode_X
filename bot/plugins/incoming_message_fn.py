@@ -43,11 +43,10 @@ from pyrogram.errors.exceptions.bad_request_400 import (
     PeerIdInvalid,
 )
 
-os.system(
-    "wget https://telegra.ph/file/23bcc5673d1697dd2b3dd.jpg -O thumb.jpg"
-)
+os.system("wget https://telegra.ph/file/23bcc5673d1697dd2b3dd.jpg -O thumb.jpg")
 
 bot = app
+
 
 async def encode_all_qualities(video, duration, bot, sent_message, compress_start):
     """
@@ -62,7 +61,6 @@ async def encode_all_qualities(video, duration, bot, sent_message, compress_star
     ]
 
     outputs = []
-
     original_res = resolution[0] if resolution else None
 
     for label, res in qualities:
@@ -87,6 +85,7 @@ async def encode_all_qualities(video, duration, bot, sent_message, compress_star
 
         if out_path is not None:
             outputs.append((label, out_path))
+
     if original_res is not None:
         resolution[0] = original_res
 
@@ -102,18 +101,10 @@ async def incoming_start_message_f(bot, update):
         parse_mode=enums.ParseMode.MARKDOWN,
         reply_markup=InlineKeyboardMarkup(
             [
+                [InlineKeyboardButton("Supreme", url="https://t.me/voxin_sama")],
                 [
-                    InlineKeyboardButton(
-                        "Supreme", url="https://t.me/voxin_sama"
-                    )
-                ],
-                [
-                    InlineKeyboardButton(
-                        "Updates", url="https://t.me/AnimeChidori"
-                    ),
-                    InlineKeyboardButton(
-                        "Network", url="https://t.me/Uchiha_x_clan"
-                    ),
+                    InlineKeyboardButton("Updates", url="https://t.me/AnimeChidori"),
+                    InlineKeyboardButton("Network", url="https://t.me/Uchiha_x_clan"),
                 ],
             ]
         ),
@@ -147,7 +138,15 @@ async def incoming_compress_message_f(update):
         f"**Bot Become Busy Now !!** \n\nDownload Started at `{now}`",
         parse_mode=enums.ParseMode.MARKDOWN,
     )
+
     status_path = os.path.join(DOWNLOAD_LOCATION, "status.json")
 
     try:
-        with open(status_pa_
+        with open(status_path, "w") as f:
+            statusMsg = {
+                "running": True,
+                "message": sent_message.id
+            }
+            json.dump(statusMsg, f, indent=2)
+    except Exception as e:
+        LOGGER.error(f"Failed to write status file: {e}")
