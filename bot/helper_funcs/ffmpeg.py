@@ -29,21 +29,21 @@ from bot import (
     pid_list
 )
 
-
+# ----------------------------------------------------------
+# Main encoder
+# ----------------------------------------------------------
 async def convert_video(video_file, output_directory, total_time, bot, message, chan_msg):
     kk = os.path.basename(video_file)
     ext = kk.split(".")[-1]
     out_put_file_name = kk.replace(f".{ext}", ".mkv")
     progress = os.path.join(output_directory, "progress.txt")
-
-    # Clear old progress
     open(progress, "w").close()
 
-    # Set defaults if not already defined
+    # Safe defaults
     if not crf:
         crf.append("24")
     if not codec:
-        codec.append("libx265")  # use HEVC for smaller size
+        codec.append("libx265")   # use libx264 if you prefer
     if not resolution:
         resolution.append("1920x1080")
     if not preset:
@@ -51,13 +51,17 @@ async def convert_video(video_file, output_directory, total_time, bot, message, 
     if not audio_b:
         audio_b.append("128k")
 
-    # FFmpeg command (overlay optional watermark)
+    # ----------------------------------------------------------
+    # 🖋 Watermark text (visible first 15s)
+    # ----------------------------------------------------------
+    # enable='lt(t,15)' = show until 15 seconds only
     file_generator_command = (
         f"ffmpeg -hide_banner -loglevel quiet -progress '{progress}' "
         f"-i '{video_file}' "
-        f"-i https://graph.org/file/b41a33cfdde9349b322b7.png "
-        f"-filter_complex '[0:v][1:v] overlay=W-w-20:H-h-20:format=auto[out]' "
-        f"-map '[out]' -map 0:a? -map 0:s? "
+        f"-vf \"drawtext=text='Visit: T4TSA.cc':x=w-tw-20:y=h-th-20:"
+        f"fontsize=24:fontcolor=white:shadowx=2:shadowy=2:"
+        f"enable='lt(t,15)'\" "
+        f"-map 0:v -map 0:a? -map 0:s? "
         f"-c:v {codec[0]} -crf {crf[0]} -pix_fmt yuv420p "
         f"-s {resolution[0]} -c:a libopus -b:a {audio_b[0]} "
         f"-preset {preset[0]} "
@@ -75,16 +79,17 @@ async def convert_video(video_file, output_directory, total_time, bot, message, 
     LOGGER.info(f"FFmpeg process started: PID {process.pid}")
     pid_list.insert(0, process.pid)
 
-    # write status.json
+    # record pid in status.json
     status_path = os.path.join(output_directory, "status.json")
-    with open(status_path, "r+") as f:
-        statusMsg = json.load(f)
-        statusMsg["pid"] = process.pid
-        statusMsg["message"] = message.id
-        f.seek(0)
-        json.dump(statusMsg, f, indent=2)
+    if os.path.exists(status_path):
+        with open(status_path, "r+") as f:
+            statusMsg = json.load(f)
+            statusMsg["pid"] = process.pid
+            statusMsg["message"] = message.id
+            f.seek(0)
+            json.dump(statusMsg, f, indent=2)
 
-    # progress loop
+    # progress monitor loop
     while True:
         await asyncio.sleep(3)
         if process.returncode is not None:
@@ -155,6 +160,9 @@ async def convert_video(video_file, output_directory, total_time, bot, message, 
         return None
 
 
+# ----------------------------------------------------------
+# Media information helper
+# ----------------------------------------------------------
 async def media_info(saved_file_path):
     process = subprocess.Popen(
         ["ffmpeg", "-hide_banner", "-i", saved_file_path],
@@ -180,6 +188,9 @@ async def media_info(saved_file_path):
     return total_seconds, bitrate
 
 
+# ----------------------------------------------------------
+# Screenshot helper
+# ----------------------------------------------------------
 async def take_screen_shot(video_file, output_directory, ttl):
     out_put_file_name = os.path.join(output_directory, f"{time.time()}.jpg")
     if video_file.upper().endswith(("MKV", "MP4", "WEBM")):
@@ -203,6 +214,9 @@ async def take_screen_shot(video_file, output_directory, ttl):
     return out_put_file_name if os.path.lexists(out_put_file_name) else None
 
 
+# ----------------------------------------------------------
+# Get width & height
+# ----------------------------------------------------------
 def get_width_height(video_file):
     metadata = extractMetadata(createParser(video_file))
     if metadata and metadata.has("width") and metadata.has("height"):
