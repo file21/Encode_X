@@ -1,0 +1,12 @@
+Pillow
+psutil
+hachoir
+tgcrypto
+pyrogram==2.0.106
+motor
+#https://github.com/Tinche/aiofiles/archive/master.zip
+#git+https://github.com/Tinche/aiofiles.git#egg=aiofiles
+git+https://github.com/Tinche/aiofiles.git@7582fda077e0e5b58a4f7fa3f11d0f53ef36eed5#egg=aiofiles
+dnspython
+ffmpeg
+asyncio 
